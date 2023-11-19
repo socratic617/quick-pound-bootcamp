@@ -91,13 +91,13 @@ module.exports = {
     console.log("req.body in create comment :")
     console.log(req.body)
     //
-    await Comment.create({//waiting for results from cloudinary, Post i s a model
+    await Comment.create({//creating post
       comment: req.body.comment,// comment was in form
       madeBy: req.params.commenterId, //in params bc not in form its in url 
       postId: req.params.id, //in params bc not in form its in url
     });
     console.log("Post has been added!");
-    res.redirect(`/post/${req.params.id}`);
+    res.redirect(`/post/${req.params.id}`);//renders new post created by user 
   } catch (err) {
     console.log(err);
   }
