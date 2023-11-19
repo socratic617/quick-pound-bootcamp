@@ -2,16 +2,16 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const passport = require("passport");
-const session = require("express-session");
-const MongoStore = require("connect-mongo")(session);
-const methodOverride = require("method-override");
-const flash = require("express-flash");
-const logger = require("morgan");
-const connectDB = require("./config/database");
-const mainRoutes = require("./routes/main");
+const session = require("express-session");// allows me to saty signed in
+const MongoStore = require("connect-mongo")(session);//stored in mongo data base or for your browser to be consistent and stay logged in 
+const methodOverride = require("method-override"); //enables any type of request from the browser for any request
+const flash = require("express-flash");// sends notifications that a message exists
+const logger = require("morgan");//connecting diff code together
+const connectDB = require("./config/database");//load database
+const mainRoutes = require("./routes/main");//then connect my routes
 const postRoutes = require("./routes/posts");
 
-//Use .env file in config folder
+//Use .env file in config folder , so my secrets dont go up w password to gtihub
 require("dotenv").config({ path: "./config/.env" });
 
 // Passport config
@@ -31,10 +31,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 //Logging
-app.use(logger("dev"));
+app.use(logger("dev"));//morgan to llogin
 
 //Use forms for put / delete
-app.use(methodOverride("_method"));
+app.use(methodOverride("_method"));//
 
 // Setup Sessions - stored in MongoDB
 app.use(
@@ -59,5 +59,6 @@ app.use("/post", postRoutes);
 
 //Server Running
 app.listen(process.env.PORT, () => {
+  console.log("Port number : ",process.env.PORT)
   console.log("Server is running, you better catch it!");
 });
