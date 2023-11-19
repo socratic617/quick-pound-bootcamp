@@ -1,6 +1,6 @@
 const cloudinary = require("../middleware/cloudinary");
 const Post = require("../models/Post");
-
+const Comment = require("../models/Comment");
 module.exports = {
   getProfile: async (req, res) => {
     try {
@@ -20,8 +20,14 @@ module.exports = {
   },
   getPost: async (req, res) => {
     try {
-      const post = await Post.findById(req.params.id);
-      res.render("post.ejs", { post: post, user: req.user });
+      const post = await Post.findById(req.params.id);// post is an object that represents a post
+      console.log('post :');
+      console.log(post);
+
+      const comments = await Comment.find({postId: req.params.id}).sort({ createdAt: "desc" }).lean()
+      console.log('comments : ')
+      console.log(comments)
+      res.render("post.ejs", { post: post, user: req.user, comments: comments});
     } catch (err) {
       console.log(err);
     }
@@ -29,15 +35,16 @@ module.exports = {
   createPost: async (req, res) => {
     try {
       // Upload image to cloudinary
+      console.log('right before cloud post' , req.file, req.body)
       const result = await cloudinary.uploader.upload(req.file.path);
 
-      await Post.create({
+      await Post.create({//waiting for results from cloudinary, Post i s a model
         title: req.body.title,
-        image: result.secure_url,
-        cloudinaryId: result.public_id,
-        caption: req.body.caption,
+        image: result.secure_url,// coemes cloudinary 
+        cloudinaryId: result.public_id,// coemes cloudinary and need id from cloudinary to know what to delete
+        caption: req.body.caption,//comes from form
         likes: 0,
-        user: req.user.id,
+        user: req.user.id, //always going to get user by req.user.id
       });
       console.log("Post has been added!");
       res.redirect("/profile");
@@ -72,5 +79,27 @@ module.exports = {
     } catch (err) {
       res.redirect("/profile");
     }
+  },
+  createComment: async (req, res) => {//created "createComment" from end point in routes post.js
+  try {
+    console.log("req.params in create comment :")
+    console.log(req.params)
+
+    console.log("commenterId :")
+    console.log(req.params.commenterId)
+
+    console.log("req.body in create comment :")
+    console.log(req.body)
+    //
+    await Comment.create({//waiting for results from cloudinary, Post i s a model
+      comment: req.body.comment,// comment was in form
+      madeBy: req.params.commenterId, //in params bc not in form its in url 
+      postId: req.params.id, //in params bc not in form its in url
+    });
+    console.log("Post has been added!");
+    res.redirect(`/post/${req.params.id}`);
+  } catch (err) {
+    console.log(err);
+  }
   },
 };
